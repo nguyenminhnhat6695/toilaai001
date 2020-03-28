@@ -1,0 +1,250 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lifecode.mybatis.mapper.HomeMapper">
+	
+	<sql id = "sqlPostFields">
+			a.post_id
+			,a.category_id
+			,a.level
+			,a.title
+			,a.created_at
+			,a.sumary
+			,a.content
+			,a.times_of_view
+			,(SELECT COUNT(X.COMMENT_ID) FROM COMMENTS X WHERE X.POST_ID = A.POST_ID) AS number_of_comments
+	</sql>
+
+	<sql id = "sqlCategoryFields">
+			a.category_id
+			,a.category
+			,a.category_img
+	</sql>
+	
+	<sql id = "sqlTagsFields">
+			a.tag_id
+			,a.tag
+	</sql>
+
+	<sql id = "sqlUserFields">
+			a.user_id
+			,a.password
+			,a.type
+			,a.name
+			,a.email
+			,a.occupation
+			,a.company_name
+			,a.phone
+			,a.address
+			,a.city
+			,a.country
+			,a.linkedin
+			,a.facebook
+			,a.twitter
+			,a.instagram
+			,a.user_type_cd
+			,a.avatar_path
+			,a.join_date
+			,a.note
+	</sql>
+	
+	<sql id="sqlPaginatorPosts">
+		<choose>
+			<when test="start_post !=null and start_post != '' and records_no != null and records_no != ''">
+				LIMIT ${start_post},${records_no}
+			</when>
+			<when test="records_no != null and records_no != ''">
+				LIMIT ${records_no}
+			</when>
+		</choose>
+	</sql>
+
+	<sql id="sqlWherePosts">
+		<where>
+			<if test="category_id != null and category_id != ''">
+				AND B.CATEGORY_ID = #{category_id}
+			</if>
+			<if test="tag_id != null and tag_id != ''">
+				AND C.TAG_ID = ${tag_id}
+			</if>
+		</where>
+	</sql>
+	
+	<sql id="sqlSelectHotPosts">
+		SELECT
+			<include refid="sqlPostFields"></include>
+		FROM POSTS A
+		ORDER BY A.LEVEL ASC, A.CREATED_AT ASC
+		LIMIT 3
+	</sql>
+	
+	<sql id="sqlSelectRecentPosts">
+		SELECT
+			<include refid="sqlPostFields"></include>
+		FROM POSTS A
+			WHERE
+				A.POST_ID NOT IN (SELECT 
+									T.POST_ID
+								  FROM (
+									  	SELECT
+											<!-- <include refid="sqlPostFields"></include> -->
+											B.POST_ID
+										FROM POSTS B
+									  	ORDER BY B.LEVEL ASC, B.CREATED_AT ASC
+										LIMIT 3
+									) T
+								)
+			ORDER BY A.CREATED_AT ASC
+			LIMIT 8
+	</sql>
+
+	<select id="selectPostsTotCnt" resultType="int">
+		SELECT
+			COUNT(*)
+		FROM (
+			SELECT
+				A.POST_ID
+			FROM POSTS A
+			<if test="category_id != null and category_id != ''">
+				LEFT JOIN CATEGORIES B ON A.CATEGORY_ID = B.CATEGORY_ID
+			</if>
+			<if test="tag_id != null and tag_id != ''">
+				LEFT JOIN POSTS_TAGS C ON A.POST_ID = C.POST_ID
+				LEFT JOIN TAGS D ON C.TAG_ID = D.TAG_ID
+			</if>
+			<include refid="sqlWherePosts"></include>
+			GROUP BY A.POST_ID
+		) X
+	</select>
+	
+	<select id="selectPosts" resultType="com.lifecode.mybatis.entity.Post">
+		SELECT
+			<include refid="sqlPostFields"></include>
+		FROM POSTS A
+		<if test="category_id != null and category_id != ''">
+			LEFT JOIN CATEGORIES B ON A.CATEGORY_ID = B.CATEGORY_ID
+		</if>
+		<if test="tag_id != null and tag_id != ''">
+			LEFT JOIN POSTS_TAGS C ON A.POST_ID = C.POST_ID
+			LEFT JOIN TAGS D ON C.TAG_ID = D.TAG_ID
+		</if>
+		<include refid="sqlWherePosts"></include>
+		GROUP BY A.POST_ID
+		ORDER BY A.LEVEL ASC, A.CREATED_AT ASC
+		<include refid="sqlPaginatorPosts"></include>
+	</select>
+
+	<select id="selectPopularPosts" resultType="com.lifecode.mybatis.entity.Post">
+		SELECT
+			<include refid="sqlPostFields"></include>
+		FROM POSTS A
+			ORDER BY A.TIMES_OF_VIEW ASC
+		LIMIT 4
+	</select>
+	
+	<select id="selectHotPosts" resultType="com.lifecode.mybatis.entity.Post">
+		<include refid="sqlSelectHotPosts"></include>
+	</select>
+	
+	<select id="selectRecentPosts" resultType="com.lifecode.mybatis.entity.Post">
+		<include refid="sqlSelectRecentPosts"></include>
+	</select>
+	
+	<select id="selectOldPosts" resultType="com.lifecode.mybatis.entity.Post">
+		SELECT
+			<include refid="sqlPostFields"></include>
+		FROM POSTS A
+		WHERE
+			A.POST_ID NOT IN (
+				SELECT T.POST_ID FROM
+				(
+					(<include refid="sqlSelectHotPosts"></include>)
+					UNION
+					(<include refid="sqlSelectRecentPosts"></include>)
+				) T
+			)
+		<include refid="sqlPaginatorPosts"></include>
+	</select>
+
+	<select id="selectCategories" resultType="com.lifecode.mybatis.entity.Category">
+		SELECT
+			<include refid="sqlCategoryFields"></include>
+			,COUNT(B.POST_ID) AS NUMBER_OF_POSTS
+		FROM
+			CATEGORIES A
+			LEFT JOIN POSTS B ON A.CATEGORY_ID = B.CATEGORY_ID
+			<where>
+				<if test='category_id != null and category_id != ""'>
+					AND A.CATEGORY_ID = #{category_id}
+				</if>
+				<if test='post_id != null and post_id != ""'>
+					AND B.POST_ID = #{post_id}
+				</if>
+			</where>
+			GROUP BY A.CATEGORY_ID
+	</select>
+	
+	<select id="selectUsers" resultType="com.lifecode.mybatis.entity.User">
+		SELECT
+			<include refid="sqlUserFields"></include>
+		FROM
+			USERS A
+			<choose>
+				<when test='user_id != null and user_id != ""'>
+					WHERE A.USER_ID = #{user_id}
+				</when>
+				<when test='post_id != null and post_id != ""'>
+					LEFT JOIN POSTS_AUTHORS B ON A.USER_ID = B.USER_ID
+					LEFT JOIN POSTS C ON B.POST_ID = C.POST_ID
+					WHERE C.POST_ID = #{post_id}
+				</when>
+				<otherwise>
+				</otherwise>
+			</choose>
+			GROUP BY A.USER_ID
+	</select>
+	
+	<select id="selectTags" resultType="com.lifecode.mybatis.entity.Tag">
+		SELECT
+			<include refid="sqlTagsFields"></include>
+		FROM
+			TAGS A
+			<if test='post_id != null and post_id != ""'>
+				JOIN POSTS_TAGS B ON A.TAG_ID = B.TAG_ID
+				JOIN POSTS C ON B.POST_ID = C.POST_ID
+				WHERE
+					c.POST_ID = #{post_id}
+			</if>
+			<if test='category_id != null and category_id != ""'>
+				JOIN CATEGORIES D ON A.CATEGORY_ID = D.CATEGORY_ID
+				WHERE
+					A.CATEGORY_ID = #{category_id}
+			</if>
+			GROUP BY A.TAG_ID
+	</select>
+	
+	<select id="selectImages" resultType="com.lifecode.mybatis.entity.Image">
+		SELECT
+			C.IMAGE_ID
+			,C.PATH
+		FROM
+			POSTS A JOIN POSTS_IMAGES B ON A.POST_ID = B.POST_ID
+			LEFT JOIN IMAGES C ON B.IMAGE_ID = C.IMAGE_ID
+		<where>
+			<if test='post_id != null and post_id != ""'>
+				A.POST_ID = #{post_id}
+			</if>
+		</where>
+		GROUP BY C.IMAGE_ID
+	</select>
+	
+	<select id="getPostById" resultType="com.lifecode.mybatis.entity.Post">
+		SELECT
+			<include refid="sqlPostFields"></include>
+			,(SELECT COUNT(X.COMMENT_ID) FROM COMMENTS X WHERE X.POST_ID = A.POST_ID) AS number_of_comments
+		FROM
+			POSTS A
+		WHERE
+			A.POST_ID = #{post_id}
+		GROUP BY A.POST_ID
+	</select>
+</mapper>
