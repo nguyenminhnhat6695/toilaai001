@@ -43,7 +43,7 @@ public class DatabaseConfig {
     public DataSource dataSource() {
     	DriverManagerDataSource dataSource = new DriverManagerDataSource();
     	dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-    	dataSource.setUrl("jdbc:mysql://127.0.0.1:3306/lifecode-test2?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&zeroDateTimeBehavior=convertToNull");
+    	dataSource.setUrl("jdbc:mysql://127.0.0.1:3306/lifecode?useUnicode=true&characterEncoding=UTF-8&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC&zeroDateTimeBehavior=convertToNull");
         dataSource.setUsername("root");
         dataSource.setPassword("root");
         return dataSource;
