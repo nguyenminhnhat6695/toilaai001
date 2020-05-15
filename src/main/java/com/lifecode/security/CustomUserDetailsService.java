@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.lifecode.jpa.model.User;
+import com.lifecode.jpa.entity.User;
 import com.lifecode.jpa.repository.UserRepository;
 
 @Service

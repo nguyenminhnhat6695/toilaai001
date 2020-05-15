@@ -24,7 +24,7 @@
 		,a.note
 	</sql>
 
-	<select id="getUserById" resultType="com.lifecode.mybatis.entity.User">
+	<select id="getUserById" resultType="UserVO">
 		SELECT
 		<include refid="sqlUserFields"></include>
 		FROM USERS A

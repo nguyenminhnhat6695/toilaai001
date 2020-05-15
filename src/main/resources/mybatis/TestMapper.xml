@@ -1,0 +1,72 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lifecode.mybatis.mapper.TestMapper">
+	
+	<sql id = "sqlPostFields">
+			a.post_id
+			,a.category_id
+			,a.level
+			,a.title
+			,a.created_at
+			,a.sumary
+			,a.content
+			,a.times_of_view
+			,(SELECT COUNT(X.COMMENT_ID) FROM COMMENTS X WHERE X.POST_ID = A.POST_ID) AS number_of_comments
+	</sql>
+
+	<sql id = "sqlCategoryFields">
+			a.category_id
+			,a.category
+			,a.category_img
+	</sql>
+	
+	<sql id = "sqlTagsFields">
+			a.tag_id
+			,a.tag
+	</sql>
+
+	<sql id = "sqlUserFields">
+			a.user_id
+			,a.password
+			,a.type
+			,a.name
+			,a.email
+			,a.occupation
+			,a.company_name
+			,a.phone
+			,a.address
+			,a.city
+			,a.country
+			,a.linkedin
+			,a.facebook
+			,a.twitter
+			,a.instagram
+			,a.user_type_cd
+			,a.avatar_path
+			,a.join_date
+			,a.note
+	</sql>
+	
+	<sql id="sqlPaginatorPosts">
+		<choose>
+			<when test="start_post !=null and start_post != '' and records_no != null and records_no != ''">
+				LIMIT ${start_post},${records_no}
+			</when>
+			<when test="records_no != null and records_no != ''">
+				LIMIT ${records_no}
+			</when>
+		</choose>
+	</sql>
+
+	<select id="selectPosts" resultType="FieldMap">
+		SELECT
+			<include refid="sqlPostFields"></include>
+		FROM POSTS A
+	</select>
+	
+	<select id="selectPostsTest" resultType="java.lang.Object">
+		SELECT
+			<include refid="sqlPostFields"></include>
+		FROM POSTS A
+	</select>
+</mapper>

@@ -1,20 +1,33 @@
 package com.lifecode.utils;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
+import javax.persistence.EntityManagerFactory;
+
+import org.hibernate.SessionFactory;
+import org.hibernate.annotations.Entity;
+import org.hibernate.persister.entity.AbstractEntityPersister;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.lifecode.jpa.entity.Tag;
+import com.lifecode.mybatis.model.PostVO;
 
+@SuppressWarnings("deprecation")
 public class Utils {
 
 	static Map<String, Object> mapResult;
@@ -22,6 +35,9 @@ public class Utils {
 	static JSONObject jsonObject;
 
 	static JSONArray jsonArray;
+	
+	@Autowired
+	private static EntityManagerFactory entityManagerFactory;
 	
 	/**
 	 * check is Integer
@@ -212,6 +228,56 @@ public class Utils {
 		}
 		return mapList;
 	}
+	
+	@SuppressWarnings({ "unchecked" })
+	public static <V> V mapToEntity(Map<String,Object> map, Class<?> entity) throws Exception {
+		V v = (V) ((Class<? extends Object>) entity).newInstance();
+
+		if(isJpaEntity(v)) {
+			for (Field field : v.getClass().getDeclaredFields()) {
+				
+		    	Annotation annotation = field.getAnnotation(javax.persistence.Column.class);
+		    	String columnName = "";
+		        if(annotation instanceof javax.persistence.Column){
+		           Column column = (Column) annotation;
+		           columnName = column.name();
+		        } else {
+		           columnName = field.getName();
+		        }
+
+		        Object mapKeyObj = map.get(columnName).getClass();
+		        Object entityFieldObj = field.getType();
+		        
+		        if (mapKeyObj.equals(entityFieldObj)) {
+		        	boolean accessible = field.isAccessible();
+			        field.setAccessible(true);
+			        field.set(v, map.get(columnName));
+			        field.setAccessible(accessible);
+		        } else {
+		        	throw new Exception("Column name ["+columnName+"] of "+entityFieldObj+" cannot set data from "+mapKeyObj);
+		        }
+		    } 
+			return v;
+		}
+		return null;
+	}
+ 	
+	private static <V> boolean isJpaEntity(final V v) {
+	    return v.getClass().isAnnotationPresent(javax.persistence.Entity.class);
+	}
+	
+	public static void main(String[] args) throws Exception {
+		Tag a = new Tag();
+		PostVO p = new PostVO();
+		System.out.println(isJpaEntity(p));
+		Map<String,Object> map = new HashMap<String,Object>();
+		Long x = (long) 2;
+		map.put("tag_id",x);
+		map.put("tag","test");
+		String a1 = null;
+		//System.out.println(map.get(a1));
+		mapToEntity(map,Tag.class);
+	}
 
 	public static Map<String,Object> response(Object data,String jwt, String message,HttpStatus status) {
 		mapResult = new HashMap<String,Object>();
@@ -224,6 +290,10 @@ public class Utils {
 
 	public static Map<String,Object> responseOK(Object data, String jwt, String message) {
 		return response(data,jwt, message,HttpStatus.OK);
+	}
+	
+	public static Map<String,Object> responseOK() {
+		return response(null,null,"SUCESSFULLY",HttpStatus.OK);
 	}
 	
 	public static Map<String,Object> responseOK(Object data) {

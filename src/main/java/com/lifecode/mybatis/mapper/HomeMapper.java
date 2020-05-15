@@ -5,34 +5,28 @@ import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.lifecode.mybatis.entity.Category;
-import com.lifecode.mybatis.entity.Image;
-import com.lifecode.mybatis.entity.Post;
-import com.lifecode.mybatis.entity.Tag;
-import com.lifecode.mybatis.entity.User;
-
 @Mapper
 public interface HomeMapper {
 	
 	int selectPostsTotCnt(Map<String, Object> param);
 	
-	List<Post> selectPosts(Map<String, Object> param);
+	<T> List<T> selectPosts(Map<String, Object> param);
 	
-	List<Post> selectHotPosts();
+	<T> List<T> selectHotPosts();
 
-	List<Post> selectPopularPosts();
+	<T> List<T> selectPopularPosts();
 	
-	List<Post> selectRecentPosts();
-	
-	List<Category> selectCategories(Map<String, Object> param);
+	<T> List<T> selectRecentPosts();
 
-	List<User> selectUsers(Map<String, Object> param);
+	<T> List<T> selectCategories(Map<String, Object> param);
 
-	List<Image> selectImages(Map<String, Object> param);
+	<T> List<T> selectUsers(Map<String, Object> param);
 
-	List<Post> selectOldPosts(Map<String, Object> param);
+	<T> List<T> selectImages(Map<String, Object> param);
 
-	List<Tag> selectTags(Map<String, Object> param);
+	<T> List<T> selectOldPosts(Map<String, Object> param);
 
-	Post getPostById(String postId);
+	<T> List<T> selectTags(Map<String, Object> param);
+
+	<T> T getPostById(String postId);
 }

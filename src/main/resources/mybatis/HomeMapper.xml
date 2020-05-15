@@ -66,13 +66,26 @@
 			<if test="tag_id != null and tag_id != ''">
 				AND C.TAG_ID = ${tag_id}
 			</if>
+			<include refid="sqlWhereTypePost"></include>
 		</where>
 	</sql>
 	
+	<sql id="sqlWhereTypePost">
+		<choose>
+			<when test="isDaft != null and isDaft != ''">
+				AND A.LEVEL = 5
+			</when>
+			<otherwise>
+				AND A.LEVEL &lt; 5
+			</otherwise>
+		</choose>
+	</sql>
+
 	<sql id="sqlSelectHotPosts">
 		SELECT
 			<include refid="sqlPostFields"></include>
 		FROM POSTS A
+		<include refid="sqlWherePosts"></include>
 		ORDER BY A.LEVEL ASC, A.CREATED_AT ASC
 		LIMIT 3
 	</sql>
@@ -93,6 +106,7 @@
 										LIMIT 3
 									) T
 								)
+			<include refid="sqlWhereTypePost"></include>
 			ORDER BY A.CREATED_AT ASC
 			LIMIT 8
 	</sql>
@@ -116,7 +130,7 @@
 		) X
 	</select>
 	
-	<select id="selectPosts" resultType="com.lifecode.mybatis.entity.Post">
+	<select id="selectPosts" resultType="PostVO">
 		SELECT
 			<include refid="sqlPostFields"></include>
 		FROM POSTS A
@@ -133,7 +147,7 @@
 		<include refid="sqlPaginatorPosts"></include>
 	</select>
 
-	<select id="selectPopularPosts" resultType="com.lifecode.mybatis.entity.Post">
+	<select id="selectPopularPosts" resultType="PostVO">
 		SELECT
 			<include refid="sqlPostFields"></include>
 		FROM POSTS A
@@ -141,15 +155,15 @@
 		LIMIT 4
 	</select>
 	
-	<select id="selectHotPosts" resultType="com.lifecode.mybatis.entity.Post">
+	<select id="selectHotPosts" resultType="PostVO">
 		<include refid="sqlSelectHotPosts"></include>
 	</select>
 	
-	<select id="selectRecentPosts" resultType="com.lifecode.mybatis.entity.Post">
+	<select id="selectRecentPosts" resultType="PostVO">
 		<include refid="sqlSelectRecentPosts"></include>
 	</select>
 	
-	<select id="selectOldPosts" resultType="com.lifecode.mybatis.entity.Post">
+	<select id="selectOldPosts" resultType="PostVO">
 		SELECT
 			<include refid="sqlPostFields"></include>
 		FROM POSTS A
@@ -162,10 +176,11 @@
 					(<include refid="sqlSelectRecentPosts"></include>)
 				) T
 			)
+			<include refid="sqlWhereTypePost"></include>
 		<include refid="sqlPaginatorPosts"></include>
 	</select>
 
-	<select id="selectCategories" resultType="com.lifecode.mybatis.entity.Category">
+	<select id="selectCategories" resultType="CategoryVO">
 		SELECT
 			<include refid="sqlCategoryFields"></include>
 			,COUNT(B.POST_ID) AS NUMBER_OF_POSTS
@@ -183,7 +198,7 @@
 			GROUP BY A.CATEGORY_ID
 	</select>
 	
-	<select id="selectUsers" resultType="com.lifecode.mybatis.entity.User">
+	<select id="selectUsers" resultType="UserVO">
 		SELECT
 			<include refid="sqlUserFields"></include>
 		FROM
@@ -203,7 +218,7 @@
 			GROUP BY A.USER_ID
 	</select>
 	
-	<select id="selectTags" resultType="com.lifecode.mybatis.entity.Tag">
+	<select id="selectTags" resultType="FieldMap">
 		SELECT
 			<include refid="sqlTagsFields"></include>
 		FROM
@@ -222,7 +237,7 @@
 			GROUP BY A.TAG_ID
 	</select>
 	
-	<select id="selectImages" resultType="com.lifecode.mybatis.entity.Image">
+	<select id="selectImages" resultType="ImageVO">
 		SELECT
 			C.IMAGE_ID
 			,C.PATH
@@ -237,7 +252,7 @@
 		GROUP BY C.IMAGE_ID
 	</select>
 	
-	<select id="getPostById" resultType="com.lifecode.mybatis.entity.Post">
+	<select id="getPostById" resultType="PostVO">
 		SELECT
 			<include refid="sqlPostFields"></include>
 			,(SELECT COUNT(X.COMMENT_ID) FROM COMMENTS X WHERE X.POST_ID = A.POST_ID) AS number_of_comments

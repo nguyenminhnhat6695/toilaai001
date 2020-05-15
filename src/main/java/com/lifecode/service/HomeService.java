@@ -7,49 +7,54 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.lifecode.mybatis.entity.Category;
-import com.lifecode.mybatis.entity.Image;
-import com.lifecode.mybatis.entity.Post;
-import com.lifecode.mybatis.entity.Tag;
-import com.lifecode.mybatis.entity.User;
+import com.lifecode.jpa.repository.TagRepository;
 import com.lifecode.mybatis.mapper.HomeMapper;
+import com.lifecode.mybatis.model.CategoryVO;
+import com.lifecode.mybatis.model.ImageVO;
+import com.lifecode.mybatis.model.PostVO;
+import com.lifecode.mybatis.model.TagVO;
+import com.lifecode.mybatis.model.UserVO;
 import com.lifecode.utils.Utils;
 
 @Service
 public class HomeService {
 	
-	private List<Post> list;
+	private List<PostVO> list;
 	
-	private List<Tag> tags;
+	private List<TagVO> tags;
 	
-	private List<User> users;
+	private List<UserVO> userVOs;
 	
-	private List<Image> images;
+	private List<ImageVO> images;
 
 	@Resource
 	private HomeMapper homeMapper;
 	
-	public List<Category> getCategories(Map<String, Object> param) {
+	@Autowired
+	private TagRepository tagRepository;
+	
+	public List<CategoryVO> getCategories(Map<String, Object> param) {
 		return homeMapper.selectCategories(param);
 	}
 
-	public List<Tag> getTags(Map<String, Object> param) {
+	public List<TagVO> getTags(Map<String, Object> param) {
 		return homeMapper.selectTags(param);
 	}
 
-	public List<Post> getPopularPosts() {
+	public List<PostVO> getPopularPosts() {
 		list = homeMapper.selectPopularPosts();
 		return getDetailPosts(list);
 	}
 
-	public List<Post> getHotPosts() {
+	public List<PostVO> getHotPosts() {
 		list = homeMapper.selectHotPosts();
 		return getDetailPosts(list);
 	}
 
-	public List<Post> getRecentPosts() {
+	public List<PostVO> getRecentPosts() {
 		list = homeMapper.selectRecentPosts();
 		return getDetailPosts(list);
 	}
@@ -96,31 +101,31 @@ public class HomeService {
 		return result;
 	}
 	
-	public List<Post> getOldPosts(Map<String, Object> param) {
+	public List<PostVO> getOldPosts(Map<String, Object> param) {
 		param.put("start_post", 1);
 		list = homeMapper.selectOldPosts(param);
 		return getDetailPosts(list);
 	}
 
-	private List<Post> getDetailPosts(List<Post> posts) {
+	private List<PostVO> getDetailPosts(List<PostVO> posts) {
 		if(posts.isEmpty()) {
-			return new ArrayList<Post>();
+			return new ArrayList<PostVO>();
 		}
-		for(Post e:posts) {
+		for(PostVO e:posts) {
 			getDetailPost(e);
 		}
 		return posts;
 	}
 	
-	private Post getDetailPost(Post post) {
+	private PostVO getDetailPost(PostVO post) {
 		Map<String,Object> param = new HashMap<String,Object>();
 		param.put("post_id",post.getPost_id());
 		
 		tags = homeMapper.selectTags(param);
 		post.setTags(tags);
 		
-		users = homeMapper.selectUsers(param);
-		post.setUsers(users);
+		userVOs = homeMapper.selectUsers(param);
+		post.setUsers(userVOs);
 		
 		images = homeMapper.selectImages(param);
 		post.setImages(images);
@@ -128,8 +133,13 @@ public class HomeService {
 		return post;
 	}
 
-	public Post getPostById(String postId) {
-		Post post = homeMapper.getPostById(postId);
+	public PostVO getPostById(String postId) {
+		PostVO post = homeMapper.getPostById(postId);
 		return getDetailPost(post);
+	}
+
+	public void addTag(Map<String, Object> param) {
+		TagVO tag = new TagVO();
+		//tagRepository.save(arg0);
 	}
 }

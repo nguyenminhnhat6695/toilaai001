@@ -1,4 +1,4 @@
-package com.lifecode.jpa.model;
+package com.lifecode.jpa.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

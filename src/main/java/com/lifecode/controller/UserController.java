@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lifecode.exception.ResourceNotFoundException;
-import com.lifecode.jpa.model.User;
+import com.lifecode.jpa.entity.User;
 import com.lifecode.jpa.repository.UserRepository;
 import com.lifecode.payload.UserIdentityAvailability;
 import com.lifecode.payload.UserProfile;

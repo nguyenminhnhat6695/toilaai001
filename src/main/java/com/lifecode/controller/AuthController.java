@@ -25,9 +25,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.lifecode.exception.AppException;
-import com.lifecode.jpa.model.Role;
-import com.lifecode.jpa.model.RoleName;
-import com.lifecode.jpa.model.User;
+import com.lifecode.jpa.entity.Role;
+import com.lifecode.jpa.entity.RoleName;
+import com.lifecode.jpa.entity.User;
 import com.lifecode.jpa.repository.RoleRepository;
 import com.lifecode.jpa.repository.UserRepository;
 import com.lifecode.payload.JwtAuthenticationResponse;

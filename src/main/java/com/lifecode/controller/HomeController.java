@@ -11,14 +11,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.lifecode.mybatis.entity.Category;
-import com.lifecode.mybatis.entity.Post;
-import com.lifecode.mybatis.entity.Tag;
+import com.lifecode.mybatis.model.CategoryVO;
+import com.lifecode.mybatis.model.PostVO;
+import com.lifecode.mybatis.model.TagVO;
 import com.lifecode.service.HomeService;
 import com.lifecode.utils.Utils;
 
@@ -37,7 +39,7 @@ public class HomeController {
 	public ResponseEntity<Map<String,Object>> getCategories(@RequestParam Map<String,Object> param) {
 
 		try {
-			List<Category> result = homeService.getCategories(param);
+			List<CategoryVO> result = homeService.getCategories(param);
 			return ResponseEntity.ok().body(Utils.responseOK(result));
 		} catch (Exception e) {
 			logger.error("Excecption : {}", ExceptionUtils.getStackTrace(e));
@@ -50,19 +52,32 @@ public class HomeController {
 	public ResponseEntity<Map<String,Object>> getTagsByPostId(@RequestParam Map<String,Object> param) {
 
 		try {
-			List<Tag> result = homeService.getTags(param);
+			List<TagVO> result = homeService.getTags(param);
 			return ResponseEntity.ok().body(Utils.responseOK(result));
 		} catch (Exception e) {
 			logger.error("Excecption : {}", ExceptionUtils.getStackTrace(e));
 		}
 		return ResponseEntity.badRequest().body(Utils.responseERROR());
 	}
+	
+	@PostMapping("/add-tag")
+	public ResponseEntity<Map<String,Object>> addTag(@RequestBody Map<String,Object> param) {
+
+		try {
+			homeService.addTag(param);
+			return ResponseEntity.ok().body(Utils.responseOK());
+		} catch (Exception e) {
+			logger.error("Excecption : {}", ExceptionUtils.getStackTrace(e));
+		}
+		return ResponseEntity.badRequest().body(Utils.responseERROR());
+	}
+	
 	@RequestMapping(value = "/hot-posts", method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<Map<String,Object>> getHotPosts() {
 
 		try {
-			List<Post> result = homeService.getHotPosts();
+			List<PostVO> result = homeService.getHotPosts();
 			return ResponseEntity.ok().body(Utils.responseOK(result));
 		} catch (Exception e) {
 			logger.error("Excecption : {}", ExceptionUtils.getStackTrace(e));
@@ -75,7 +90,7 @@ public class HomeController {
 	public ResponseEntity<Map<String,Object>> getRecentPosts() {
 
 		try {
-			List<Post> result = homeService.getRecentPosts();
+			List<PostVO> result = homeService.getRecentPosts();
 			return ResponseEntity.ok().body(Utils.responseOK(result));
 		} catch (Exception e) {
 			logger.error("Excecption : {}", ExceptionUtils.getStackTrace(e));
@@ -88,7 +103,7 @@ public class HomeController {
 	public ResponseEntity<Map<String,Object>> getPopularPosts() {
 
 		try {
-			List<Post> result = homeService.getPopularPosts();
+			List<PostVO> result = homeService.getPopularPosts();
 			return ResponseEntity.ok().body(Utils.responseOK(result));
 		} catch (Exception e) {
 			logger.error("Excecption : {}", ExceptionUtils.getStackTrace(e));
@@ -101,7 +116,7 @@ public class HomeController {
 	public ResponseEntity<Map<String,Object>> getOldPosts(@RequestParam Map<String,Object> param) {
 
 		try {
-			List<Post> result = homeService.getOldPosts(param);
+			List<PostVO> result = homeService.getOldPosts(param);
 			return ResponseEntity.ok().body(Utils.responseOK(result));
 		} catch (Exception e) {
 			logger.error("Excecption : {}", ExceptionUtils.getStackTrace(e));
@@ -127,7 +142,7 @@ public class HomeController {
 	public ResponseEntity<Map<String,Object>> getPostById(@PathVariable(value = "post_id") String postId) {
 
 		try {
-			Post result = homeService.getPostById(postId);
+			PostVO result = homeService.getPostById(postId);
 			return ResponseEntity.ok().body(Utils.responseOK(result));
 		} catch (Exception e) {
 			logger.error("Excecption : {}", ExceptionUtils.getStackTrace(e));

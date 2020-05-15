@@ -1,6 +1,6 @@
-package com.lifecode.mybatis.entity;
+package com.lifecode.mybatis.model;
 
-public class Tag {
+public class TagVO {
 	
 	private String tag_id;
 	private String tag;

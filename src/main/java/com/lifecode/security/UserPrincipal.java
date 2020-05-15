@@ -1,7 +1,7 @@
 package com.lifecode.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.lifecode.jpa.model.User;
+import com.lifecode.jpa.entity.User;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
