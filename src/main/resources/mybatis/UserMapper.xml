@@ -6,7 +6,7 @@
 		a.user_id
 		,a.password
 		,a.type
-		,a.full_name
+		,a.name
 		,a.email
 		,a.occupation
 		,a.company_name
@@ -23,7 +23,27 @@
 		,a.join_date
 		,a.note
 	</sql>
-
+	
+	<select id="selectUsers" resultType="UserVO">
+		SELECT
+			<include refid="sqlUserFields"></include>
+		FROM
+			USERS A
+			<choose>
+				<when test='user_id != null and user_id != ""'>
+					WHERE A.USER_ID = #{user_id}
+				</when>
+				<when test='post_id != null and post_id != ""'>
+					LEFT JOIN POSTS_AUTHORS B ON A.USER_ID = B.USER_ID
+					LEFT JOIN POSTS C ON B.POST_ID = C.POST_ID
+					WHERE C.POST_ID = #{post_id}
+				</when>
+				<otherwise>
+				</otherwise>
+			</choose>
+			GROUP BY A.USER_ID
+	</select>
+	
 	<select id="getUserById" resultType="UserVO">
 		SELECT
 		<include refid="sqlUserFields"></include>

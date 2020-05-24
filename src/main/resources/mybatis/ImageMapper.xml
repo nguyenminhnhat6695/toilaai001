@@ -1,0 +1,19 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lifecode.mybatis.mapper.ImageMapper">
+	
+	<select id="selectImages" resultType="ImageVO">
+		SELECT
+			C.IMAGE_ID
+			,C.PATH
+		FROM
+			POSTS A JOIN POSTS_IMAGES B ON A.POST_ID = B.POST_ID
+			LEFT JOIN IMAGES C ON B.IMAGE_ID = C.IMAGE_ID
+		<where>
+			<if test='post_id != null and post_id != ""'>
+				A.POST_ID = #{post_id}
+			</if>
+		</where>
+		GROUP BY C.IMAGE_ID
+	</select>
+</mapper>

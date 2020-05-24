@@ -1,25 +1,26 @@
 package com.lifecode.utils;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.persistence.Column;
 import javax.persistence.EntityManagerFactory;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.annotations.Entity;
-import org.hibernate.persister.entity.AbstractEntityPersister;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,7 +28,6 @@ import com.google.gson.Gson;
 import com.lifecode.jpa.entity.Tag;
 import com.lifecode.mybatis.model.PostVO;
 
-@SuppressWarnings("deprecation")
 public class Utils {
 
 	static Map<String, Object> mapResult;
@@ -35,9 +35,6 @@ public class Utils {
 	static JSONObject jsonObject;
 
 	static JSONArray jsonArray;
-	
-	@Autowired
-	private static EntityManagerFactory entityManagerFactory;
 	
 	/**
 	 * check is Integer
@@ -200,27 +197,34 @@ public class Utils {
 	 * convert object to map
 	 * @param obj
 	 * @return
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
 	 */
-	public static Map<String, Object> toMap(Object obj) {
+	public static Map<String, Object> toMap(Object obj) throws InstantiationException, IllegalAccessException {
 
 		if (obj == null)
 			return null;
 
-		ObjectMapper oMapper = new ObjectMapper();
-
-		@SuppressWarnings("unchecked")
-		Map<String, Object> map = oMapper.convertValue(obj, Map.class);
+		Map<String, Object> map = new HashMap<>();    
+		Field[] allFields = obj.getClass().getDeclaredFields();
+	    for (Field field : allFields) {
+	        field.setAccessible(true);
+	        Object objectValue = field.get(obj);
+	        map.put(field.getName(), objectValue);
+	    }
 
 		return map;
 	}
-	
+
 	/**
 	 * convert object list to map list
 	 * @param objList
 	 * @return
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
 	 */
 	@SuppressWarnings("unchecked")
-	public static List<Map<String, Object>> toMapList(Object objList) {
+	public static List<Map<String, Object>> toMapList(Object objList) throws InstantiationException, IllegalAccessException {
 
 		List<Map<String, Object>> mapList = new ArrayList<Map<String, Object>>();
 		for (Object o : (List<Object>) objList) {
@@ -265,46 +269,32 @@ public class Utils {
 	private static <V> boolean isJpaEntity(final V v) {
 	    return v.getClass().isAnnotationPresent(javax.persistence.Entity.class);
 	}
-	
-	public static void main(String[] args) throws Exception {
-		Tag a = new Tag();
-		PostVO p = new PostVO();
-		System.out.println(isJpaEntity(p));
-		Map<String,Object> map = new HashMap<String,Object>();
-		Long x = (long) 2;
-		map.put("tag_id",x);
-		map.put("tag","test");
-		String a1 = null;
-		//System.out.println(map.get(a1));
-		mapToEntity(map,Tag.class);
+
+//	public static void main(String[] args) throws Exception {
+//		Tag a = new Tag();
+//		PostVO p = new PostVO();
+//		System.out.println(isJpaEntity(p));
+//		Map<String,Object> map = new HashMap<String,Object>();
+//		Long x = (long) 2;
+//		map.put("tag_id",x);
+//		map.put("tag","test");
+//		String a1 = null;
+//		//System.out.println(map.get(a1));
+//		mapToEntity(map,Tag.class);
+//	}
+
+	public static List<Long> toListLong(List<String> strList) {
+		strList.removeAll(Collections.singleton(null));
+		List<Integer> intList = strList.stream().map(Integer::parseInt).collect(Collectors.toList());
+		List<Long> longList = intList.stream().mapToLong(Integer::longValue).boxed().collect(Collectors.toList());
+		return longList;
 	}
 
-	public static Map<String,Object> response(Object data,String jwt, String message,HttpStatus status) {
-		mapResult = new HashMap<String,Object>();
-		mapResult.put("status", status==null&&data!=null?HttpStatus.OK.value():status==null?"":status.value());
-		mapResult.put("data", data==null?"":data);
-		mapResult.put("message", StringUtils.isEmpty(message)&&data!=null?"Sucessfully":StringUtils.isEmpty(message)?"":message);
-		mapResult.put("accessToken", jwt==null?"":"Bearer "+jwt);
-		return mapResult;
-	}
-
-	public static Map<String,Object> responseOK(Object data, String jwt, String message) {
-		return response(data,jwt, message,HttpStatus.OK);
-	}
-	
-	public static Map<String,Object> responseOK() {
-		return response(null,null,"SUCESSFULLY",HttpStatus.OK);
-	}
-	
-	public static Map<String,Object> responseOK(Object data) {
-		return response(data,null,"SUCESSFULLY",HttpStatus.OK);
-	}
-	
-	public static Map<String,Object> responseERROR() {
-		return response(null,null,"AN ERROR OCCURRED !",HttpStatus.INTERNAL_SERVER_ERROR);
-	}
-	
-	public static Map<String,Object> responseERROR(HttpStatus status,String message,Object data) {
-		return response(null,null,"AN ERROR OCCURRED !",status);
-	}
+	public static String urlEncode(final String value) {
+        try {
+            return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException ex) {
+            throw new RuntimeException(ex.getCause());
+        }
+    }
 }

@@ -17,6 +17,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -32,8 +33,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.lifecode.mybatis.model.PostVO;
+import com.lifecode.payload.Response;
 import com.lifecode.service.TestService;
-import com.lifecode.utils.Utils;
 
 @RestController
 @RequestMapping(value = "api/test")
@@ -43,13 +44,15 @@ public class TestController {
 	//Save the uploaded file to this folder
     private static String UPLOADED_FOLDER = "E:\\projects\\react\\lifecode-dashboard\\src\\images\\test\\";
     
-    private static String REST_IMG_PATH = "http://127.0.0.1:8888/api/test/image/";
+    private static final String UPLOADE_FOLDER_ROOT = "upload-files";
     
+    private static String REST_IMG_PATH = "http://127.0.0.1:8888/api/test/image/";
+
     protected Logger logger = LoggerFactory.getLogger(TestController.class);
     
 	@Autowired
 	private TestService testService;
-	
+
 	@SuppressWarnings("unchecked")
 	@PostMapping(value = "/multiple")
 	public <T> ResponseEntity<T> multiple(HttpServletResponse response, MultipartHttpServletRequest mRequest) {
@@ -80,13 +83,14 @@ public class TestController {
 	}
 	
 	@GetMapping(
-			  value = "/image/{imageName:.+}",
-			  produces = MediaType.IMAGE_JPEG_VALUE
+			  value = "/image/{imageName:.+}"
+			 /* produces = MediaType.IMAGE_PNG_VALUE*/
 			)
 	public @ResponseBody byte[] getImage(@PathVariable(value = "imageName") String imageName) throws IOException {
 //	    InputStream in = getClass().getResourceAsStream(classLoader.getResource(fileName).getFile());
-		File file = new File(UPLOADED_FOLDER+imageName);
-	    return IOUtils.toByteArray(new FileInputStream(file));
+		File file = new File(UPLOADE_FOLDER_ROOT+"/category/"+imageName);
+		byte[] byteFile = IOUtils.toByteArray(new FileInputStream(file));
+	    return byteFile;
 	}
 	
 //	@RequestMapping(value = "/posts", method = RequestMethod.GET, produces = {
@@ -103,14 +107,14 @@ public class TestController {
 //	
 	@RequestMapping(value = "/posts", method = RequestMethod.GET, produces = {
 			MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<Map<String,Object>> getPosts(@RequestParam Map<String,Object> param) {
+	public ResponseEntity<Response> getPosts(@RequestParam Map<String,Object> param) {
 
 		try {
 			List<PostVO> result = testService.getPosts(param);
-			return ResponseEntity.ok().body(Utils.responseOK(result));
+			return ResponseEntity.ok().body(new Response(HttpStatus.OK,result));
 		} catch (Exception e) {
 			logger.error("Excecption : {}", ExceptionUtils.getStackTrace(e));
 		}
-		return ResponseEntity.badRequest().body(Utils.responseERROR());
+		return ResponseEntity.badRequest().body(new Response(HttpStatus.INTERNAL_SERVER_ERROR));
 	}
 }

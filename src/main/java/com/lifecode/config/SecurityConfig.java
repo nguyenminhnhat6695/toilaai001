@@ -71,21 +71,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                     .and()
                 .authorizeRequests()
-	                .antMatchers("/",
-	                        "/**/*.png",
-	                        "/**/*.gif",
-	                        "/**/*.svg",
-	                        "/**/*.jpg")
-	                        .permitAll()
                     .antMatchers("/api/auth/**")
                         .permitAll()
                     .antMatchers(HttpMethod.GET,"/api/users/**")
                         .permitAll()
-                    .antMatchers(HttpMethod.POST,"/api/test/**")
+                    .antMatchers(HttpMethod.POST,"/api/image/preview")
                         .permitAll()
-                    .antMatchers(HttpMethod.GET,"/api/test/**")
+                    .antMatchers(HttpMethod.GET,"/api/image/view/**")
                         .permitAll()
-                    .antMatchers("/api/home/**")
+                    .antMatchers("/api/blog/**")
                         .permitAll()
                     .anyRequest()
                         .authenticated();

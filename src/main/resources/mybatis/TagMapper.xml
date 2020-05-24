@@ -1,0 +1,30 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lifecode.mybatis.mapper.TagMapper">
+
+	<sql id = "sqlTagsFields">
+		a.tag_id
+		,a.tag
+	</sql>
+
+	<sql id="sqlWhereTags">
+		<where>
+			<if test='post_id != null and post_id != ""'>
+				AND C.POST_ID = #{post_id}
+			</if>
+		</where>
+	</sql>
+
+	<select id="selectTags" resultType="FieldMap">
+		SELECT
+			<include refid="sqlTagsFields"></include>
+		FROM
+			TAGS A
+			<if test='post_id != null and post_id != ""'>
+				JOIN POSTS_TAGS B ON A.TAG_ID = B.TAG_ID
+				JOIN POSTS C ON B.POST_ID = C.POST_ID
+			</if>
+			<include refid="sqlWhereTags"></include>
+			GROUP BY A.TAG_ID
+	</select>
+</mapper>

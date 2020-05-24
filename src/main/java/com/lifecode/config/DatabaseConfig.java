@@ -108,7 +108,7 @@ public class DatabaseConfig {
         return sessionFactory.getObject();
     }
 
-	private void registTypeAlias(final String packageScan) throws ClassNotFoundException {
+    private void registTypeAlias(final String packageScan) throws ClassNotFoundException {
     	final ClassPathScanningCandidateComponentProvider provider = new ClassPathScanningCandidateComponentProvider(false);
     	provider.addIncludeFilter(new RegexPatternTypeFilter(Pattern.compile(".*")));
     	final Set<BeanDefinition> classes = provider.findCandidateComponents(packageScan);

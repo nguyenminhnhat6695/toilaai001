@@ -7,12 +7,12 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.lifecode.jpa.repository.TagRepository;
-import com.lifecode.mybatis.mapper.HomeMapper;
-import com.lifecode.mybatis.model.CategoryVO;
+import com.lifecode.mybatis.mapper.ImageMapper;
+import com.lifecode.mybatis.mapper.PostMapper;
+import com.lifecode.mybatis.mapper.TagMapper;
+import com.lifecode.mybatis.mapper.UserMapper;
 import com.lifecode.mybatis.model.ImageVO;
 import com.lifecode.mybatis.model.PostVO;
 import com.lifecode.mybatis.model.TagVO;
@@ -20,42 +20,40 @@ import com.lifecode.mybatis.model.UserVO;
 import com.lifecode.utils.Utils;
 
 @Service
-public class HomeService {
+public class PostService {
 	
 	private List<PostVO> list;
 	
 	private List<TagVO> tags;
 	
-	private List<UserVO> userVOs;
+	private List<UserVO> users;
 	
 	private List<ImageVO> images;
 
 	@Resource
-	private HomeMapper homeMapper;
-	
-	@Autowired
-	private TagRepository tagRepository;
-	
-	public List<CategoryVO> getCategories(Map<String, Object> param) {
-		return homeMapper.selectCategories(param);
-	}
+	private PostMapper postMapper;
 
-	public List<TagVO> getTags(Map<String, Object> param) {
-		return homeMapper.selectTags(param);
-	}
+	@Resource
+	private UserMapper userMapper;
+	
+	@Resource
+	private TagMapper tagMapper;
+
+	@Resource
+	private ImageMapper imageMapper;
 
 	public List<PostVO> getPopularPosts() {
-		list = homeMapper.selectPopularPosts();
+		list = postMapper.selectPopularPosts();
 		return getDetailPosts(list);
 	}
 
 	public List<PostVO> getHotPosts() {
-		list = homeMapper.selectHotPosts();
+		list = postMapper.selectHotPosts();
 		return getDetailPosts(list);
 	}
 
 	public List<PostVO> getRecentPosts() {
-		list = homeMapper.selectRecentPosts();
+		list = postMapper.selectRecentPosts();
 		return getDetailPosts(list);
 	}
 	
@@ -76,9 +74,9 @@ public class HomeService {
 				return result;
 			}
 			
-			int totalPosts = homeMapper.selectPostsTotCnt(param);
+			int totalPosts = postMapper.selectPostsTotCnt(param);
 			if(totalPosts < recordsNoInt) {
-				list = homeMapper.selectPosts(param);
+				list = postMapper.selectPosts(param);
 			} else {
 				lastPage = totalPosts/recordsNoInt + ((totalPosts%recordsNoInt)>0?1:0);
 				pageInt = Integer.parseInt(page);
@@ -86,13 +84,13 @@ public class HomeService {
 				
 				int startPost = (pageInt-1)*recordsNoInt;
 				param.put("start_post", startPost);
-				list = homeMapper.selectPosts(param);
+				list = postMapper.selectPosts(param);
 				
 				result.put("page_of_post", pageInt);
 				result.put("last_page", lastPage);
 			}
 		} else {
-			list =  homeMapper.selectPosts(param);
+			list =  postMapper.selectPosts(param);
 			result.put("page", 1);
 			result.put("last_page", 1);
 		}
@@ -103,7 +101,7 @@ public class HomeService {
 	
 	public List<PostVO> getOldPosts(Map<String, Object> param) {
 		param.put("start_post", 1);
-		list = homeMapper.selectOldPosts(param);
+		list = postMapper.selectOldPosts(param);
 		return getDetailPosts(list);
 	}
 
@@ -121,25 +119,20 @@ public class HomeService {
 		Map<String,Object> param = new HashMap<String,Object>();
 		param.put("post_id",post.getPost_id());
 		
-		tags = homeMapper.selectTags(param);
+		tags = tagMapper.selectTags(param);
 		post.setTags(tags);
 		
-		userVOs = homeMapper.selectUsers(param);
-		post.setUsers(userVOs);
+		users = userMapper.selectUsers(param);
+		post.setUsers(users);
 		
-		images = homeMapper.selectImages(param);
+		images = imageMapper.selectImages(param);
 		post.setImages(images);
 		
 		return post;
 	}
 
 	public PostVO getPostById(String postId) {
-		PostVO post = homeMapper.getPostById(postId);
+		PostVO post = postMapper.getPostById(postId);
 		return getDetailPost(post);
-	}
-
-	public void addTag(Map<String, Object> param) {
-		TagVO tag = new TagVO();
-		//tagRepository.save(arg0);
 	}
 }

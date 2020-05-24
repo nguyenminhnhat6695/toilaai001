@@ -58,7 +58,7 @@
 		</choose>
 	</sql>
 
-	<select id="selectPosts" resultType="FieldMap">
+	<select id="selectPosts" resultType="PostVO">
 		SELECT
 			<include refid="sqlPostFields"></include>
 		FROM POSTS A

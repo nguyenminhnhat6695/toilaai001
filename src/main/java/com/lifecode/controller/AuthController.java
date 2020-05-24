@@ -2,7 +2,6 @@ package com.lifecode.controller;
 
 import java.net.URI;
 import java.util.Collections;
-import java.util.Map;
 
 import javax.validation.Valid;
 
@@ -18,9 +17,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -32,9 +33,10 @@ import com.lifecode.jpa.repository.RoleRepository;
 import com.lifecode.jpa.repository.UserRepository;
 import com.lifecode.payload.JwtAuthenticationResponse;
 import com.lifecode.payload.LoginRequest;
+import com.lifecode.payload.Response;
 import com.lifecode.payload.SignUpRequest;
+import com.lifecode.payload.UserIdentityAvailability;
 import com.lifecode.security.JwtTokenProvider;
-import com.lifecode.utils.Utils;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -72,13 +74,13 @@ public class AuthController {
     }
     
 	@PostMapping("/signup")
-    public ResponseEntity<Map<String,Object>> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
+    public ResponseEntity<Response> registerUser(@Valid @RequestBody SignUpRequest signUpRequest) {
         try {
         	 if(userRepository.existsByUsername(signUpRequest.getUsername())) {
-        		 return ResponseEntity.ok().body(Utils.responseERROR(HttpStatus.BAD_REQUEST, "Username is already taken!", null));
+        		 return ResponseEntity.ok().body(new Response(HttpStatus.BAD_REQUEST,null,"Username is already taken!"));
              }
              if(userRepository.existsByEmail(signUpRequest.getEmail())) {
-            	 return ResponseEntity.ok().body(Utils.responseERROR(HttpStatus.BAD_REQUEST, "Email Address already in use!", null));
+            	 return ResponseEntity.ok().body(new Response(HttpStatus.BAD_REQUEST, null, "Email Address already in use!"));
              }
              // Creating user's account
              User user = new User(signUpRequest.getName(), signUpRequest.getUsername(),
@@ -93,10 +95,22 @@ public class AuthController {
              URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/users/{username}")
 					.buildAndExpand(result.getUsername()).toUri();
 			 
-             return ResponseEntity.created(location).body(Utils.responseOK(null, null, "User registered successfully"));
+             return ResponseEntity.created(location).body(new Response(HttpStatus.OK, null, "User registered successfully"));
 		} catch (Exception e) {
 			logger.error("Excecption : {}", ExceptionUtils.getStackTrace(e));
 		}
-		return ResponseEntity.badRequest().body(Utils.responseERROR());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+	
+    @GetMapping("/checkUsernameAvailability")
+    public UserIdentityAvailability checkUsernameAvailability(@RequestParam(value = "username") String username) {
+        Boolean isAvailable = !userRepository.existsByUsername(username);
+        return new UserIdentityAvailability(isAvailable);
+    }
+
+    @GetMapping("/checkEmailAvailability")
+    public UserIdentityAvailability checkEmailAvailability(@RequestParam(value = "email") String email) {
+        Boolean isAvailable = !userRepository.existsByEmail(email);
+        return new UserIdentityAvailability(isAvailable);
     }
 }

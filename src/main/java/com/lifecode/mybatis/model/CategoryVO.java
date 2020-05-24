@@ -31,5 +31,4 @@ public class CategoryVO {
 	public void setNumber_of_posts(String number_of_posts) {
 		this.number_of_posts = number_of_posts;
 	}
-	
 }

@@ -1,6 +1,5 @@
 package com.lifecode.mybatis.model;
 
-
 public class UserVO {
     
 	private String user_id;

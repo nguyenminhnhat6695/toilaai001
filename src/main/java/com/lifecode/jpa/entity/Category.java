@@ -16,7 +16,8 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "categories")
 public class Category {
-    @Id
+
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "category_id")
     private Long id;
@@ -34,10 +35,13 @@ public class Category {
 			fetch = FetchType.LAZY)
 	private Set<Post> posts;
 
-	@OneToMany(
-			mappedBy = "category",
-			cascade = CascadeType.ALL,
-			orphanRemoval = true,
-			fetch = FetchType.LAZY)
-	private Set<Tag> tags;
+	public Category(String categoryName, String categoryImg) {
+		super();
+    	this.category = categoryName;
+    	this.category_img = categoryImg;
+	}
+
+	public Category() {
+		super();
+	}
 }

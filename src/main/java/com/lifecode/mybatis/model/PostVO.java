@@ -16,7 +16,7 @@ public class PostVO {
 	private String number_of_comments;
 	
 	private List<TagVO> tags;
-	private List<UserVO> userVOs;
+	private List<UserVO> users;
 	private List<ImageVO> images;
 	
 	public String getPost_id() {
@@ -80,10 +80,10 @@ public class PostVO {
 		this.tags = tags;
 	}
 	public List<UserVO> getUsers() {
-		return userVOs;
+		return users;
 	}
-	public void setUsers(List<UserVO> userVOs) {
-		this.userVOs = userVOs;
+	public void setUsers(List<UserVO> users) {
+		this.users = users;
 	}
 	public List<ImageVO> getImages() {
 		return images;

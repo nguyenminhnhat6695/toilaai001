@@ -1,0 +1,28 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lifecode.mybatis.mapper.CategoryMapper">
+
+	<sql id = "sqlCategoryFields">
+		A.CATEGORY_ID
+		,A.CATEGORY
+		,A.CATEGORY_IMG
+	</sql>
+
+	<select id="selectCategories" resultType="CategoryVO">
+		SELECT
+			<include refid="sqlCategoryFields"></include>
+			,COUNT(B.POST_ID) AS NUMBER_OF_POSTS
+		FROM
+			CATEGORIES A
+			LEFT JOIN POSTS B ON A.CATEGORY_ID = B.CATEGORY_ID
+			<where>
+				<if test='category_id != null and category_id != ""'>
+					AND A.CATEGORY_ID = #{category_id}
+				</if>
+				<if test='post_id != null and post_id != ""'>
+					AND B.POST_ID = #{post_id}
+				</if>
+			</where>
+			GROUP BY A.CATEGORY_ID
+	</select>
+</mapper>
