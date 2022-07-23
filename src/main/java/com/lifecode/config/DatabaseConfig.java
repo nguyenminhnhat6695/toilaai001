@@ -52,17 +52,17 @@ public class DatabaseConfig {
 	public PersistenceExceptionTranslationPostProcessor exceptionTranslation(){
 	    return new PersistenceExceptionTranslationPostProcessor();
 	}
-	
-	@Bean
-	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
-		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-		em.setDataSource(dataSource());
-		em.setPackagesToScan(new String[] { "com.lifecode.jpa.entity" });
-		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-		em.setJpaVendorAdapter(vendorAdapter);
-		em.setJpaProperties(additionalProperties());
-		return em;
-	}
+//	
+//	@Bean
+//	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+//		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
+//		em.setDataSource(dataSource());
+//		em.setPackagesToScan(new String[] { "com.lifecode.jpa.entity" });
+//		JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+//		em.setJpaVendorAdapter(vendorAdapter);
+//		em.setJpaProperties(additionalProperties());
+//		return em;
+//	}
 	
 	@Bean
     public DataSource dataSource() {
@@ -73,13 +73,13 @@ public class DatabaseConfig {
         dataSource.setPassword("root");
         return dataSource;
     }
-	
-	private Properties additionalProperties() {
-	    Properties properties = new Properties();
-	    properties.setProperty("hibernate.hbm2ddl.auto", "update");
-	    properties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5InnoDBDialect");
-	    return properties;
-	}
+//	
+//	private Properties additionalProperties() {
+//	    Properties properties = new Properties();
+//	    properties.setProperty("hibernate.hbm2ddl.auto", "update");
+//	    properties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5InnoDBDialect");
+//	    return properties;
+//	}
 	
     @Bean
     public SqlSessionFactory sqlSessionFactory(DataSource dataSource,ApplicationContext applicationContext) throws Exception {

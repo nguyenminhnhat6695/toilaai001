@@ -27,9 +27,5 @@ target/
 /nbdist/
 /.nb-gradle/
 build/
-logs
-/logs/
-logs/
-logs/spring-boot-logging.log
 ### VS Code ###
 .vscode/
